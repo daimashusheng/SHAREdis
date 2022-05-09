@@ -30,6 +30,7 @@ type backendConfig struct {
 	ThriftPort int `toml:"thrift_port"`
 	ThriftTimeoutMs int `toml:"thrift_timeout_ms"`
 	PrometheusPort int `toml:"prometheus_port"`
+	RedisPort int `toml:"redis_port"`
 	Pds string
 }
 

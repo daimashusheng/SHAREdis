@@ -12,6 +12,7 @@ import (
 	"github.com/pingcap/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/tidwall/redcon"
 	"go.uber.org/zap"
 	"net/http"
 	"sharedis/config"
@@ -32,6 +33,8 @@ type App struct {
 	service *CmdHandler
 
 	server *thrift.TSimpleServer
+
+	mux *redcon.ServeMux
 }
 
 type CmdHandler struct {
@@ -114,6 +117,7 @@ func NewApp(conf *config.Config) *App {
 		log.Fatal(err.Error())
 	}
 
+	app.mux = NewServeMux(app.tdb)
 	return app
 }
 
@@ -156,6 +160,25 @@ func (app *App) Close() error {
 
 func (app *App) Run() {
 	go StartPrometheus(":" + strconv.Itoa(app.conf.Backend.PrometheusPort))
+	// accept connections
+	go func() {
+		err := redcon.ListenAndServe("0.0.0.0:" + strconv.Itoa(app.conf.Backend.RedisPort),
+			app.mux.ServeRESP,
+			func(conn redcon.Conn) bool {
+				// use this function to accept or deny the connection.
+				// log.Printf("accept: %s", conn.RemoteAddr())
+				return true
+			},
+			func(conn redcon.Conn, err error) {
+				// this is called when the connection has been closed
+				// log.Printf("closed: %s, err: %v", conn.RemoteAddr(), err)
+			},
+		)
+		if err != nil {
+			log.Fatal("redis conn error", zap.Error(err))
+		}
+	}()
+
 	if err := app.server.Serve(); err != nil {
 		log.Fatal("thrift server failed", zap.Error(err))
 		return

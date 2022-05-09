@@ -75,6 +75,13 @@ github.com/prometheus/common/model
 github.com/prometheus/procfs
 github.com/prometheus/procfs/internal/fs
 github.com/prometheus/procfs/internal/util
+# github.com/tidwall/btree v1.1.0
+github.com/tidwall/btree
+github.com/tidwall/btree/internal
+# github.com/tidwall/match v1.1.1
+github.com/tidwall/match
+# github.com/tidwall/redcon v1.4.4
+github.com/tidwall/redcon
 # github.com/tikv/client-go/v2 v2.0.0-alpha.0.20210926115008-4f806a544298
 github.com/tikv/client-go/v2/config
 github.com/tikv/client-go/v2/error
